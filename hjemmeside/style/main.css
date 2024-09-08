@@ -1,0 +1,61 @@
+body{
+    font-family: Verdana, sans-serif;
+    width: 600px;
+    background-color: rgb(224, 224, 224);
+}
+
+h1 {
+    color: brown;
+    border-top: 1px solid gray;
+    border-bottom: 1px solid gray;
+    background-color: lightsteelblue;
+    text-align: center;
+}
+
+.mitNavn{
+    color: darkgreen;
+    font-size: 1.2rem;
+}
+
+form {
+    padding: 10px 10px 10px 20px;
+    border: 2px solid rgb(71, 35, 28);
+    background-color: beige;
+    width: 550px;
+
+    > label {
+        font-weight: bold;
+    }
+
+    > select{
+        width: 200px;
+    }
+
+    > input {
+        width: 500px;
+        height: 200px;
+        border: 1px solid gray;
+    }
+}
+
+button{
+    border-radius: 12px;
+    background-color: rgb(91, 91, 64);
+    border: none;
+    color: wheat;
+    padding: 10px;
+    text-align: center;
+    display: inline-block;
+    font-size: 0.9rem;
+    margin: 8px 2px;    }
+
+p#visBesked{
+    padding: 5px;
+    background-color: beige;
+    border: 2px solid rgb(71, 35, 28);
+
+    > strong {
+        display: inline-block;
+        width: 75px;
+    }
+}
