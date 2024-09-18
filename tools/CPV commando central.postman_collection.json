@@ -92,48 +92,48 @@
 			"response": []
 		},
 		{
-			"name": "api/commands/<track_id>",
+			"name": "api/commands/<unit_id>",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/api/commands/5",
+					"raw": "{{host}}/api/commands/2",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"commands",
-						"5"
+						"2"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "api/command/<from_track_id>/<to_track_id>/<command_id>",
+			"name": "api/command/<from_unit_id>/<to_unit_id>/<command_id>",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/api/command/4/2/START/Postman test 12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+					"raw": "{{host}}/api/command/3/2/CHECKIN/valgfri note :-)",
 					"host": [
 						"{{host}}"
 					],
 					"path": [
 						"api",
 						"command",
-						"4",
+						"3",
 						"2",
-						"START",
-						"Postman test 12345678901234567890123456789012345678901234567890123456789012345678901234567890"
+						"CHECKIN",
+						"valgfri note :-)"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "api/command/<event_id>",
+			"name": "api/command/<command_id>",
 			"request": {
 				"method": "DELETE",
 				"header": [],
