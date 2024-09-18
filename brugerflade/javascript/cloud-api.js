@@ -2,32 +2,30 @@
  * POSTKASSE SERVER API - hjælpe metoder til at henbte data fra postkasserne i skyen
  * -----------------------------------------------------------------------------------------
  *
- * Funktionerne herunder sender og henter besekder til vores "postkasse" i skyen.
+ * Funktionerne herunder sender og henter kommandoer til vores "central" i skyen.
  * De skal ikke ændres... :-)
  *
  * De api_funktioner der skal bruges i dine egne funktioner er disse:
  *
- *   - api_sendBeskedTilPostkassenISkyen(modtagerPostkasseId, besked)
- *   - api_hentBeskederFraPostkassenISkyen()
- *   - api_hentPostkasseNavnFraSkyen(postkasseId)
- *   - api_hentModtagerPostkasserFraSkyen()
+ *   - api_sendTilEnhed(modtagerEnhedsId, besked)
+ *   - api_hentMineEgne()
+ *   - api_hentEnhedsNavn(enhedsId)
+ *   - api_hentModtagerEnheder()
  *
  */
 
 const apiUser = 'CpvApi';
 const apiPassword = 'CPV!api:2023';
-const postkasseHost = 'https://kommandocentral.pythonanywhere.com';
+const apiHost = 'https://kommandocentral.pythonanywhere.com';
 //const postkasseHost = 'http://127.0.0.1:5000';
 
-const api_sendBeskedTilPostkassenISkyen = async (
-    modtagerPostkasseId,
-    besked
-) => {
+const api_sendTilEnhed = async (modtagerEnhedsId, besked) => {
     try {
         const token = await fetchAccessTokenFromServer();
-        await sendMessageCommandToServer(
-            MIT_POSTKASSE_ID,
-            modtagerPostkasseId,
+        await sendCommandToServer(
+            MIT_ENHEDS_ID,
+            modtagerEnhedsId,
+            'BESKED', //kommandoen der skal sendes
             besked,
             token
         );
@@ -36,45 +34,45 @@ const api_sendBeskedTilPostkassenISkyen = async (
     }
 };
 
-const api_hentBeskederFraPostkassenISkyen = async () => {
+const api_hentMineEgne = async () => {
     try {
         const token = await fetchAccessTokenFromServer();
-        const data = await getMessagesFromServer(token);
-        const messages = [];
-        if (data.events) {
-            for (var key in data.events) {
-                if (data.events.hasOwnProperty(key)) {
-                    const event = data.events[key];
-                    messages.push(event);
+        const data = await getCommandsFromServer(token);
+        const commandsReceived = [];
+        if (data.commands) {
+            for (var key in data.commands) {
+                if (data.commands.hasOwnProperty(key)) {
+                    const command = data.commands[key];
+                    commandsReceived.push(command);
                 }
             }
         }
-        return messages;
+        return commandsReceived;
     } catch (error) {
         console.error('Authentication and reading message failed:', error);
     }
 };
 
-const api_hentPostkasseNavnFraSkyen = async (postkasseId) => {
-    const mailboxes = await api_hentModtagerPostkasserFraSkyen();
-    const mailbox = mailboxes.find((mailbox) => mailbox.id == postkasseId);
-    if (mailbox) {
-        return mailbox.name;
+const api_hentEnhedsNavn = async (enhedsId) => {
+    const units = await api_hentModtagerEnheder();
+    const unit = units.find((unit) => unit.id == enhedsId);
+    if (unit) {
+        return unit.name;
     }
 };
 
-const api_hentModtagerPostkasserFraSkyen = async () => {
+const api_hentModtagerEnheder = async () => {
     try {
         const token = await fetchAccessTokenFromServer();
         const data = await getOwnUnits(token);
-        let mailBoxes = [];
+        let availableUnits = [];
         if (data.units) {
             for (var key in data.units) {
-                const box = { id: key, name: data.units[key] };
-                mailBoxes.push(box);
+                const unit = { id: key, name: data.units[key] };
+                availableUnits.push(unit);
             }
         }
-        return mailBoxes;
+        return availableUnits;
     } catch (error) {
         console.error(
             'Authentication and reading all mailboxes failed:',
@@ -87,13 +85,14 @@ const api_hentModtagerPostkasserFraSkyen = async () => {
 // Helpers to make the requests to the server
 // -----------------------------------------
 
-const sendMessageCommandToServer = async (
-    fromPostkasseId,
-    toPostkasseId,
+const sendCommandToServer = async (
+    fromUnitId,
+    toUnitId,
+    command,
     message,
     token
 ) => {
-    const url = `${postkasseHost}/api/command/${fromPostkasseId}/${toPostkasseId}/BESKED/${message}`;
+    const url = `${apiHost}/api/command/${fromUnitId}/${toUnitId}/${command}/${message}`;
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -110,15 +109,15 @@ const sendMessageCommandToServer = async (
                 `Error sending message: ${response.status} - ${errorDetails.message}`
             );
         }
-        console.log('Message was send!');
+        console.log('Command was send!');
     } catch (error) {
-        console.error('Send message failed:', error);
+        console.error('Send command failed:', error);
         throw error; // Re-throw for higher level handling
     }
 };
 
-const getMessagesFromServer = async (token) => {
-    const url = `${postkasseHost}/api/commands/${MIT_POSTKASSE_ID}`;
+const getCommandsFromServer = async (token) => {
+    const url = `${apiHost}/api/commands/${MIT_ENHEDS_ID}`;
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -132,11 +131,11 @@ const getMessagesFromServer = async (token) => {
         if (!response.ok) {
             const errorDetails = await response.json();
             throw new Error(
-                `Error getting messages from postkasse "${MIT_POSTKASSE_ID}": ${response.status} - ${errorDetails.message}`
+                `Error getting commands from unit "${MIT_ENHEDS_ID}": ${response.status} - ${errorDetails.message}`
             );
         }
         const data = await response.json();
-        console.log('Messages read!');
+        console.log('Commands read!');
         return data;
     } catch (error) {
         console.error('Getting messages failed:', error);
@@ -145,7 +144,7 @@ const getMessagesFromServer = async (token) => {
 };
 
 const getOwnUnits = async (token) => {
-    const url = `${postkasseHost}/api/units/own`;
+    const url = `${apiHost}/api/units/own`;
     const headers = {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -159,20 +158,20 @@ const getOwnUnits = async (token) => {
         if (!response.ok) {
             const errorDetails = await response.json();
             throw new Error(
-                `Error getting all tracks (mailboxes) for departement: ${response.status} - ${errorDetails.message}`
+                `Error getting all units for departement: ${response.status} - ${errorDetails.message}`
             );
         }
         const data = await response.json();
-        console.log('Mailbox names read!');
+        console.log('Unit names read!');
         return data;
     } catch (error) {
-        console.error('Getting tracks (mailboxes) failed:', error);
+        console.error('Getting units failed:', error);
         throw error; // Re-throw for higher level handling
     }
 };
 
 const fetchAccessTokenFromServer = async () => {
-    const url = `${postkasseHost}/auth/token`;
+    const url = `${apiHost}/auth/token`;
     const authString = `${apiUser}:${apiPassword}`;
     const headers = {
         Authorization: 'Basic ' + btoa(authString),

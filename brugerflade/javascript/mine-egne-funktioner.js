@@ -1,8 +1,8 @@
 // Denne skal sættes til dit eget postkasse ID
-const MIT_POSTKASSE_ID = 2;
+const MIT_ENHEDS_ID = 2; // = unit-id
 
-const visMitEgetNavnIDokumentet = async (nameElementId) => {
-    const navn = await api_hentPostkasseNavnFraSkyen(MIT_POSTKASSE_ID);
+const visMitEgetNavn = async (nameElementId) => {
+    const navn = await api_hentEnhedsNavn(MIT_ENHEDS_ID);
     const nameElement = document.getElementById(nameElementId);
     if (navn) {
         nameElement.innerHTML = navn;
@@ -16,12 +16,14 @@ const visMitEgetNavnIDokumentet = async (nameElementId) => {
     }
 };
 
-const visModtagerPostkasserIDropdown = async (modtagerDropdownElementId) => {
+const hentOgVisMuligeModtagerEnhederIDropdown = async (
+    modtagerDropdownElementId
+) => {
     // Vi starter med at sætte en værdi, der skal bruges, hvis vi IKKE finder nogen postkasser
     let mailboxSelectorHtml =
         '<option value="0">- der blev ikke fundet nogen modtagere!! -</option>';
 
-    const allePostkasser = await api_hentModtagerPostkasserFraSkyen();
+    const allePostkasser = await api_hentModtagerEnheder();
 
     // vi får postkasserne som en liste, hvor hvert element i listen har formen:
     //
@@ -43,25 +45,25 @@ const visModtagerPostkasserIDropdown = async (modtagerDropdownElementId) => {
         mailboxSelectorHtml;
 };
 
-const sendBeskedTilModtager = async (event) => {
+const sendTilModtager = async (event) => {
     // kode der skal kaldes når man trykker på "Send" knappen
     event.preventDefault();
 
     const modtagerPostkasseId = document.getElementById('modtager').value;
     const besked = document.getElementById('besked').value;
 
-    await api_sendBeskedTilPostkassenISkyen(modtagerPostkasseId, besked);
+    await api_sendTilEnhed(modtagerPostkasseId, besked);
     alert('Beskeden er sendt!');
 };
 
-const visAlleModtagneBeskederIDokumentet = async (messageElementId) => {
+const hentOgVisHvadDerErModtaget = async (messageElementId) => {
     // kode til at hente beskeden og vise den på siden
 
     // Vi definerer lige teksten der skal vises, hvis der ikke er nogen beskeder
     let beskedTextHtml = '<i>Der er ingen beskeder lige nu...</i>';
 
     // Nu prøver vi at hente alle beskeder der ligger i vores postkasse i skyen
-    const modtagneBeskeder = await api_hentBeskederFraPostkassenISkyen();
+    const modtagneBeskeder = await api_hentMineEgne();
 
     // Beskederne kommer i en liste (et "array")
 
@@ -76,12 +78,12 @@ const visAlleModtagneBeskederIDokumentet = async (messageElementId) => {
 
         beskedTextHtml = '';
         // Her laver vi en løkke så vi kan få fat på hver besked i listen
-        modtagneBeskeder.forEach((besked) => {
-            beskedTextHtml += `<strong>Fra:</strong> ${besked.from_track_name}`;
+        modtagneBeskeder.forEach((command) => {
+            beskedTextHtml += `<strong>Fra:</strong> ${command.from_unit_name}`;
             beskedTextHtml += `<br />`;
-            beskedTextHtml += `<strong>Dato:</strong> ${besked.created}`;
+            beskedTextHtml += `<strong>Dato:</strong> ${command.created}`;
             beskedTextHtml += `<br />`;
-            beskedTextHtml += `<strong>Besked:</strong> ${besked.message}`;
+            beskedTextHtml += `<strong>Besked:</strong> ${command.message}`;
             beskedTextHtml += `<br />`;
             beskedTextHtml += `<br />`;
         });

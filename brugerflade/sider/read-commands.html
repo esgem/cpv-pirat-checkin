@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style/main.css">
+    <script src="../javascript/cloud-api.js"></script>
+    <script src="../javascript/mine-egne-funktioner.js"></script>
+    <title id="titleElement">Læs for - </title>
+</head>
+
+<body>
+    <h1>Indbakken</h1>
+
+    <h2 class="mitNavn">
+        Til: <span id="mitNavn"></span>
+    </h2>
+    <script>
+        visMitEgetNavn('mitNavn');
+    </script>
+
+
+    <p id="visBesked"></p>
+    <script>
+        hentOgVisHvadDerErModtaget('visBesked');
+    </script>
+
+    <button onclick="sletBesked()">Slet beskeden</button>
+
+    <p>
+        <a href="send-command.html">Klik her for at sende en ny besked</a>
+    </p>
+
+</body>
+
+</html>

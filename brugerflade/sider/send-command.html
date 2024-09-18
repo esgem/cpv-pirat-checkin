@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style/main.css">
+    <script src="../javascript/cloud-api.js"></script>
+    <script src="../javascript/mine-egne-funktioner.js"></script>
+    <title id="titleElement">Send for </title>
+</head>
+
+<body>
+    <h1>Send en besked</h1>
+
+    <p class="mitNavn">
+        <strong>Fra: <span id="mitNavn"></span></strong>
+    </p>
+
+    <script>
+        visMitEgetNavn('mitNavn');
+    </script>
+
+    <!--
+        HUSK: 
+        I øverste linje i filen functions.js skal du sætte MIT_ENHEDS_ID
+        til din egen postkasse
+    -->
+    <form onsubmit="sendTilModtager(event)">
+        <label for="modtager">Til:</label>
+        <select name="modtager" id="modtager">
+
+        </select>
+        <script>
+            hentOgVisMuligeModtagerEnhederIDropdown('modtager');
+        </script>
+        <br /><br />
+        <label for="besked">Indtast din besked:</label>
+        <input type="text" id="besked" name="besked" required>
+        <button type="submit">Send besked</button>
+    </form>
+
+    <p>
+        <a href="read-commands.html">Klik her for at se om der er noget i indbakken</a>
+    </p>
+</body>
+
+</html>
