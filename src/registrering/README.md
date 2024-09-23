@@ -1,6 +1,6 @@
 # pirat-checkin - registrering
 
-Det er her vi laver backend koden der sørger for at man kan blive registreret. F.eks. via en Arduino.
+Det er her vi laver koden der sørger for at man kan blive registreret. F.eks. via en Arduino eller en html hjemmeside.
 
 Opgaven vil blive beskrevet herunder, efterhånden som workshoppen skrider frem
 
