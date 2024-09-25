@@ -88,11 +88,16 @@ const api_hentEnhedsNavn = async (enhedsId) => {
 };
 
 /**
+ * @typedef Unit
+ * @type {Object}
+ * @property {string} name
+ * @property {string} description
+ * @property {string} extra_id
+ */
+
+/**
  * Hent alle modtager-enheder i min afdeling
- * @returns {{
- *      id: string,
-*       name: string
- * }[]} Liste af alle modtager-enheder
+ * @returns {(Unit & {id: string})[]} Liste af alle modtager-enheder
  */
 const api_hentModtagerEnheder = async () => {
     try {
@@ -101,7 +106,12 @@ const api_hentModtagerEnheder = async () => {
         let availableUnits = [];
         if (data.units) {
             for (var key in data.units) {
-                const unit = { id: key, name: data.units[key] };
+                const unit = {
+                    id: key,
+                    name: data.units[key].name,
+                    description: data.units[key].description,
+                    extra_id: data.units[key].extra_id,
+                };
                 availableUnits.push(unit);
             }
         }
@@ -203,7 +213,7 @@ const getCommandsFromServer = async (token) => {
  *      json_source: "Python dict",
  *      department_id: string,
  *      units: {
- *          [unit_id: number]: string
+ *          [unit_id: number]: Unit
  *      }
  * }}
  */
@@ -245,7 +255,7 @@ const fetchAccessTokenFromServer = async () => {
         Authorization: 'Basic ' + btoa(authString),
         'Content-Type': 'application/json',
     };
-    
+
     try {
         const response = await fetch(url, {
             headers: headers,
