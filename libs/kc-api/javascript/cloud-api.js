@@ -19,6 +19,12 @@ const apiPassword = 'CPV!api:2023';
 const apiHost = 'https://kommandocentral.pythonanywhere.com';
 //const postkasseHost = 'http://127.0.0.1:5000';
 
+
+/**
+ * Send besked til en enhed
+ * @param {number} modtagerEnhedsId Id af enhed der skal modtage beskeden
+ * @param {String} besked Beskeden der skal sendes
+ */
 const api_sendTilEnhed = async (modtagerEnhedsId, besked) => {
     try {
         const token = await fetchAccessTokenFromServer();
@@ -34,6 +40,21 @@ const api_sendTilEnhed = async (modtagerEnhedsId, besked) => {
     }
 };
 
+/**
+ * @typedef Command
+ * @type {object}
+ * @property {string} command_id
+ * @property {string} created
+ * @property {string} from_department_id
+ * @property {number} from_unit_id
+ * @property {string} from_unit_name
+ * @property {string} message
+ */
+
+/**
+ * Hent mine modtagede kommandoer
+ * @returns {Commnad[]} De modtagede kommandoer
+ */
 const api_hentMineEgne = async () => {
     try {
         const token = await fetchAccessTokenFromServer();
@@ -53,6 +74,11 @@ const api_hentMineEgne = async () => {
     }
 };
 
+/**
+ * Hent navnet af en enhed 
+ * @param {number} enhedsId Id af enhed
+ * @returns {string?} Enhedens navn
+ */
 const api_hentEnhedsNavn = async (enhedsId) => {
     const units = await api_hentModtagerEnheder();
     const unit = units.find((unit) => unit.id == enhedsId);
@@ -61,6 +87,18 @@ const api_hentEnhedsNavn = async (enhedsId) => {
     }
 };
 
+/**
+ * @typedef Unit
+ * @type {Object}
+ * @property {string} name
+ * @property {string} description
+ * @property {string} extra_id
+ */
+
+/**
+ * Hent alle modtager-enheder i min afdeling
+ * @returns {(Unit & {id: string})[]} Liste af alle modtager-enheder
+ */
 const api_hentModtagerEnheder = async () => {
     try {
         const token = await fetchAccessTokenFromServer();
@@ -68,7 +106,12 @@ const api_hentModtagerEnheder = async () => {
         let availableUnits = [];
         if (data.units) {
             for (var key in data.units) {
-                const unit = { id: key, name: data.units[key] };
+                const unit = {
+                    id: key,
+                    name: data.units[key].name,
+                    description: data.units[key].description,
+                    extra_id: data.units[key].extra_id,
+                };
                 availableUnits.push(unit);
             }
         }
@@ -85,6 +128,14 @@ const api_hentModtagerEnheder = async () => {
 // Helpers to make the requests to the server
 // -----------------------------------------
 
+/**
+ * Send command message to server
+ * @param {number} fromUnitId 
+ * @param {number} toUnitId 
+ * @param {string} command 
+ * @param {string} message 
+ * @param {string} token 
+ */
 const sendCommandToServer = async (
     fromUnitId,
     toUnitId,
@@ -116,6 +167,18 @@ const sendCommandToServer = async (
     }
 };
 
+/**
+ * Gets all received commands from the server
+ * @param {string} token
+ * @returns {Promise<{
+ *      json_source: "Python dict",
+ *      to_department_id: string,
+ *      to_unit_id: number,
+ *      commands: {
+ *          [command_id: string]: Command
+ *      }
+ * }>}
+ */
 const getCommandsFromServer = async (token) => {
     const url = `${apiHost}/api/commands/${MIT_ENHEDS_ID}`;
     const headers = {
@@ -143,6 +206,17 @@ const getCommandsFromServer = async (token) => {
     }
 };
 
+/**
+ * Fetch all units in own department
+ * @param {string} token 
+ * @returns {{
+ *      json_source: "Python dict",
+ *      department_id: string,
+ *      units: {
+ *          [unit_id: number]: Unit
+ *      }
+ * }}
+ */
 const getOwnUnits = async (token) => {
     const url = `${apiHost}/api/units/own`;
     const headers = {
@@ -170,6 +244,10 @@ const getOwnUnits = async (token) => {
     }
 };
 
+/**
+ * Fetch new JWT token from server
+ * @returns {String} Token returned from server
+ */
 const fetchAccessTokenFromServer = async () => {
     const url = `${apiHost}/auth/token`;
     const authString = `${apiUser}:${apiPassword}`;
@@ -177,7 +255,7 @@ const fetchAccessTokenFromServer = async () => {
         Authorization: 'Basic ' + btoa(authString),
         'Content-Type': 'application/json',
     };
-    //{ method: 'get', mode: 'cors' }
+
     try {
         const response = await fetch(url, {
             headers: headers,
